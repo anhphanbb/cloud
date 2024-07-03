@@ -1,4 +1,3 @@
-import pandas as pd
 import os
 from netCDF4 import Dataset
 import cv2
@@ -13,8 +12,10 @@ os.makedirs(output_folder, exist_ok=True)
 
 # Function to save a single image
 def save_image(data, folder, orbit_number, frame_index):
-    # Normalize the radiance data to fit in the range [0, 255]
-    norm_radiance = cv2.normalize(data, None, 0, 255, cv2.NORM_MINMAX)
+    # Normalize the radiance data to fit in the range [0, 255] using fixed min and max values
+    min_radiance = 0
+    max_radiance = 24
+    norm_radiance = np.clip((data - min_radiance) / (max_radiance - min_radiance) * 255, 0, 255)
     norm_radiance = norm_radiance.astype(np.uint8)
     file_path = os.path.join(folder, f"orbit{orbit_number}_{frame_index}.png")
     cv2.imwrite(file_path, norm_radiance)
@@ -38,4 +39,3 @@ for file_name in os.listdir(input_folder):
         nc_file_path = os.path.join(input_folder, file_name)
         orbit_number = parse_orbit_number(file_name)
         save_radiance_as_images(nc_file_path, orbit_number)
-
