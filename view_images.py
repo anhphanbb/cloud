@@ -13,10 +13,10 @@ import cv2
 import os
 
 # Define the path to the folder where the dataset is located
-dataset_folder = os.path.join('Day1')
+dataset_folder = os.path.join('l1r_11_updated_07032024')
 
 # Define the filename of the dataset
-dataset_filename = 'awe_l1r_2024001_00621_q20_v00.nc'
+dataset_filename = 'awe_l1r_q20_2023326T0108_00001_v01.nc'
 
 # Combine the folder path and filename to get the full path to the dataset
 dataset_path = os.path.join(dataset_folder, dataset_filename)
