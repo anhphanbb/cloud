@@ -17,13 +17,13 @@ import re
 parent_directory = 'nc_files'
 
 # Define the orbit number
-orbit_number = 70  # Example orbit number
+orbit_number = 623  # Example orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
 
 # Search for the correct file name in all subdirectories
-pattern = re.compile(r'awe_l1r_q20_(.*)_' + orbit_str + r'_v01\.nc')
+pattern = re.compile(r'awe_l1r_(.*)_' + orbit_str + r'_(.*)\.nc')
 dataset_filename = None
 dataset_path = None
 

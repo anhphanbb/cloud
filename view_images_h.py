@@ -11,15 +11,33 @@ import numpy as np
 from matplotlib.widgets import Slider, RangeSlider  # Import RangeSlider
 import cv2
 import os
+import re
 
-# Define the path to the folder where the dataset is located
-dataset_folder = os.path.join('l1r_11_updated_07032024')
+# Define the path to the parent directory where the dataset is located
+parent_directory = 'nc_files'
 
-# Define the filename of the dataset
-dataset_filename = 'awe_l1r_q20_2023326T0108_00001_v01.nc'
+# Define the orbit number
+orbit_number = 623  # Example orbit number
 
-# Combine the folder path and filename to get the full path to the dataset
-dataset_path = os.path.join(dataset_folder, dataset_filename)
+# Pad the orbit number with zeros until it has 5 digits
+orbit_str = str(orbit_number).zfill(5)
+
+# Search for the correct file name in all subdirectories
+pattern = re.compile(r'awe_l1r_(.*)_' + orbit_str + r'_(.*)\.nc')
+dataset_filename = None
+dataset_path = None
+
+for root, dirs, files in os.walk(parent_directory):
+    for file in files:
+        if pattern.match(file):
+            dataset_filename = file
+            dataset_path = os.path.join(root, file)
+            break
+    if dataset_filename:
+        break
+
+if dataset_filename is None:
+    raise FileNotFoundError(f"No file found for orbit number {orbit_str}")
 
 # Load the dataset
 dataset = nc.Dataset(dataset_path, 'r')
