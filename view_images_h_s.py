@@ -14,10 +14,10 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
-parent_directory = 'nc_files'
+parent_directory = 'l1r_11_updated_07032024'
 
 # Define the orbit number
-orbit_number = 623  # Example orbit number
+orbit_number = 6  # Example orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
