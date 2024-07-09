@@ -69,7 +69,6 @@ vmin_default = 4
 vmax_default = 12
 
 # Create figure and axes for the plot and histogram
-
 fig, axs = plt.subplots(1, 2, figsize=(15, 5))  # 1 row, 2 columns for side-by-side
 
 # Adjust the figure to add space for the slider and range slider
@@ -103,6 +102,10 @@ def update_plot(time_step):
     axs[0].set_title(f'Radiance at Time Step {current_time_step}\nISS Position: Lat {iss_lat:.2f}, Lon {iss_lon:.2f}\nOrbit Number: {orbit_str}')
     axs[0].set_xlabel('Spatial Dimension X')
     axs[0].set_ylabel('Spatial Dimension Y')
+    
+    # Draw bounding box for x = 147 to x = 153 and y = -1 to y = 300
+    rect = plt.Rectangle((147, -1), 6, 301, linewidth=1, edgecolor='blue', facecolor='none', linestyle='-')
+    axs[0].add_patch(rect)
     
     # Set the aspect of the plot axis to equal, enforcing a 1:1 aspect ratio
     axs[0].set_aspect('equal')
