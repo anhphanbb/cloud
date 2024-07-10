@@ -1,0 +1,35 @@
+Cloud Identification - Everything is stored in Git 
+
+Date Started:              July 4th, 2024
+File path:                 C:\Users\Dallin\Documents\GitHub\cloud\
+Current project folder:    l1r_11_updated_07032024
+Current excel spreadsheet: cloud_intervals_112024_D
+Current python file:       view_images_h_s.py
+Dallin's Task:             Even numbered orbits and modulo 15
+Anh's Task:                Odd numbered orbits and modulo 15
+
+Operational Notes:
+
+- Run current project folder in view_images_h.py to generate usable images from Qline
+- ID clouds and add start/end frames for each cloud into excel 
+- Also add total frames for each orbit (last frame + 1)
+
+Python Program Notes:
+
+view_images.py - shows Qline image as well as radiance image.
+view_images_h.py - shows Qline and frequency over radiance graph.
+view_images_o.py - adaptation of h variant that allows us to just type in the orbit # instead of the entire file path.
+view_images_h_s.py - Same as h variant, but has blue bars down middle for identifying when clouds cross certain pixels.
+
+Improvement Notes:
+
+- Add lines that show vmin and vmax limits closer to the graph
+- Could we figure out a way to set the vmin and vmax based off the standard deviation of the radiance so that it updates automatically with the change in radiance?
+
+Log:
+
+July 4th - Practiced on day 1 images that have already been searched. Moved on to images from l1r_11_updated_07032024 but it looks like there's an error importing netCDF. Error occurred in both o and h python models. Consult Anh.
+
+July 9th - Had some issues getting the software running. Anh created a new python environment tf_env that the code needs to be run in, not the base model in Anaconda. Took me way too long to figure that out. Other than that it's been slow, but smooth sailing. Identifying clouds is getting substantially easier.
+
+July 10th - Updated python program. We are now using the view_images_h_s.py variant. New datapoints added to excel denoting start/end frames for center column of the imager. I've structured the excel spreadsheet so the start/end frames for the center columns are grouped within the start/end frames for the entire cloud section. In other words, sometimes there are multiple distinct clouds that can be separated by the center line, but not by the edge of the image. So for each start/end section containing the whole image, I've used the center line to denote individual clouds when applicable. *Review this and make sure Anh is doing the same thing (try to reword). 
