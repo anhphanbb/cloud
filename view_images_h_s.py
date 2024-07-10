@@ -103,8 +103,10 @@ def update_plot(time_step):
     axs[0].set_xlabel('Spatial Dimension X')
     axs[0].set_ylabel('Spatial Dimension Y')
     
-    # Draw bounding box for x = 147 to x = 153 and y = -1 to y = 300
-    rect = plt.Rectangle((147, -1), 6, 301, linewidth=1, edgecolor='blue', facecolor='none', linestyle='-')
+    # Draw bounding box for y = -1 to y = 300
+    # Center: 147, 148, 149, 150, 151, 152
+    # Expand the pixel column, 5px on each side: 142->157
+    rect = plt.Rectangle((142, -1), 16, 301, linewidth=1, edgecolor='blue', facecolor='none', linestyle='-')
     axs[0].add_patch(rect)
     
     # Set the aspect of the plot axis to equal, enforcing a 1:1 aspect ratio
