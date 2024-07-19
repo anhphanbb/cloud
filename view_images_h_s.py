@@ -8,8 +8,7 @@ Created on Sun Mar 10 13:15:17 2024
 import netCDF4 as nc
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.widgets import Slider, RangeSlider  # Import RangeSlider
-import cv2
+from matplotlib.widgets import Slider, RangeSlider
 import os
 import re
 
@@ -18,8 +17,7 @@ parent_directory = 'l1r_11_updated_07032024'
 # parent_directory = 'Day1'
 
 # Define the orbit number
-orbit_number = 135  # orbit number
-
+orbit_number = 113  # orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
@@ -78,7 +76,7 @@ plt.subplots_adjust(bottom=0.3)
 
 # Create the slider for time step on the bottom left
 ax_slider = plt.axes([0.1, 0.05, 0.35, 0.03], facecolor='lightgoldenrodyellow')
-slider = Slider(ax_slider, 'Time Step', 0, radiance.shape[0]-1, valinit=current_time_step, valfmt='%0.0f')
+slider = Slider(ax_slider, 'Time Step', 0, radiance.shape[0] - 1, valinit=current_time_step, valfmt='%0.0f')
 
 # Create the range slider for vmin and vmax on the bottom right
 ax_range_slider = plt.axes([0.55, 0.05, 0.35, 0.03], facecolor='lightgoldenrodyellow')
@@ -93,6 +91,9 @@ def update_plot(time_step):
     # Get vmin and vmax from the range slider
     vmin, vmax = range_slider.val
     
+    # Ensure vmin <= vmax
+    vmin, vmax = min(vmin, vmax), max(vmin, vmax)
+    
     # Clear previous content
     axs[0].clear()
     radiance_at_time = radiance[current_time_step, :, :]
@@ -106,8 +107,6 @@ def update_plot(time_step):
     axs[0].set_ylabel('Spatial Dimension Y')
     
     # Draw bounding box for y = -1 to y = 300
-    # Center: 147, 148, 149, 150, 151, 152
-    # Expand the pixel column, 5px on each side: 142->157
     rect = plt.Rectangle((142, -1), 16, 301, linewidth=1, edgecolor='blue', facecolor='none', linestyle='-')
     axs[0].add_patch(rect)
     
@@ -128,9 +127,35 @@ def update_plot(time_step):
 
     plt.draw()
 
+def update_vmin_vmax(event):
+    global current_time_step
+    radiance_at_time = radiance[current_time_step, :, :]
+    radiance_flat = radiance_at_time.flatten()
+    
+    # Remove NaN values before calculating percentiles
+    radiance_flat = radiance_flat[~np.isnan(radiance_flat)]
+    
+    # Ensure there are no issues with empty arrays
+    if len(radiance_flat) == 0:
+        raise ValueError("No valid data to compute percentiles.")
+    
+    # Compute the 95th percentile values for vmin and vmax
+    vmin = np.percentile(radiance_flat, 0.4)
+    vmax = np.percentile(radiance_flat, 99.7)
+    
+    # Update the range slider
+    range_slider.set_val((vmin, vmax))
+
 # Connect the slider and range slider to the update_plot function
 slider.on_changed(lambda val: update_plot(val))
 range_slider.on_changed(lambda val: update_plot(slider.val))
+
+# Create a button to update vmin and vmax based on the 95th percentile
+ax_button = plt.axes([0.7, 0.15, 0.1, 0.03], facecolor='lightgoldenrodyellow')
+button = plt.Button(ax_button, 'Set vmin-vmax')
+
+# Connect the button to the update_vmin_vmax function
+button.on_clicked(update_vmin_vmax)
 
 # Function to handle key presses for time step navigation
 def on_key(event):
