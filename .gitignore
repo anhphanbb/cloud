@@ -161,10 +161,11 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-day1/
+Day1/
 images/
 logs/
 models/
 nc_files_to_predict/
 nc_files_with_mlcloud/
 l1r_11_updated_07032024/
+v01m/
