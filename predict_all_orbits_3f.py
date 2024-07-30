@@ -36,6 +36,23 @@ def extract_orbit_number(filename):
 def extract_frame_number(filename):
     return int(filename.split('_')[1].replace('.png', ''))
 
+# Function to filter binary predictions
+def filter_binary_predictions(binary_preds, min_consecutive_frames=30):
+    filtered_preds = np.copy(binary_preds)
+    n = len(binary_preds)
+    i = 0
+    while i < n:
+        if binary_preds[i] == 1:
+            start = i
+            while i < n and binary_preds[i] == 1:
+                i += 1
+            length = i - start
+            if length < min_consecutive_frames:
+                filtered_preds[start:i] = 0
+        else:
+            i += 1
+    return filtered_preds
+
 # Dictionary to store results for each orbit
 results = {}
 
@@ -54,7 +71,8 @@ for file_name in os.listdir(input_folder):
                 'predictions': [],
                 'prediction_probs': [],
                 'running_avg_probs': [],
-                'running_avg_binary_pred': []
+                'running_avg_binary_pred': [],
+                'filtered_binary_pred': []
             }
         
         image_path = os.path.join(input_folder, file_name)
@@ -77,9 +95,16 @@ prediction_time = end_time - start_time
 
 # Calculate running averages and binary predictions for each orbit
 for orbit_number in results:
-    prediction_probs = results[orbit_number]['prediction_probs']
-    running_avg_probs = []
+    # Sort data by 'Frame #' first
+    df = pd.DataFrame({
+        'Frame #': results[orbit_number]['frame_numbers'],
+        'Prediction Probability': results[orbit_number]['prediction_probs']
+    }).sort_values(by='Frame #')
     
+    prediction_probs = df['Prediction Probability'].to_numpy()
+    
+    # Calculate running averages
+    running_avg_probs = []
     for i in range(len(prediction_probs)):
         start_index = max(0, i - 4)
         end_index = min(len(prediction_probs), i + 5)
@@ -87,21 +112,24 @@ for orbit_number in results:
         running_avg = np.mean(window)
         running_avg_probs.append(running_avg)
     
+    # Convert running average probabilities to binary predictions
     running_avg_binary_pred = (np.array(running_avg_probs) > 0.5).astype(int)
     
+    # Apply filtering to binary predictions
+    filtered_binary_pred = filter_binary_predictions(running_avg_binary_pred)
+    
+    # Store results in the dictionary
     results[orbit_number]['running_avg_probs'] = running_avg_probs
     results[orbit_number]['running_avg_binary_pred'] = running_avg_binary_pred
+    results[orbit_number]['filtered_binary_pred'] = filtered_binary_pred
+    
+    # Merge with the sorted DataFrame and save to CSV
+    results_df = df.copy()
+    results_df['Running Average Probability'] = running_avg_probs
+    results_df['Running Average Binary Prediction'] = running_avg_binary_pred
+    results_df['Filtered Binary Prediction'] = filtered_binary_pred
 
-    # Save results to separate CSV files for each orbit
     output_csv = os.path.join(output_folder, f'predictions_orbit_{orbit_number}.csv')
-    results_df = pd.DataFrame({
-        'Image Path': results[orbit_number]['image_paths'],
-        'Frame #': results[orbit_number]['frame_numbers'],
-        'Prediction': results[orbit_number]['predictions'],
-        'Prediction Probability': results[orbit_number]['prediction_probs'],
-        'Running Average Probability': results[orbit_number]['running_avg_probs'],
-        'Running Average Binary Prediction': results[orbit_number]['running_avg_binary_pred']
-    })
     results_df.to_csv(output_csv, index=False)
 
 print(f"Predictions saved to {output_folder}")
