@@ -44,14 +44,14 @@ def save_radiance_as_images(nc_file_path, orbit_number, cloud_intervals, cloud_c
             if is_within_cloud_intervals(i, cloud_intervals):
                 # 15% chance to save in 'cloud' folder
                 if random.random() < cloud_chance:
-                    save_image(radiance, i, cloud_folder, orbit_number, i)
+                    save_image(radiance, cloud_folder, orbit_number, i)
             else:
                 # 6% chance to save in 'clear' folder
                 if random.random() < clear_chance:
-                    save_image(radiance, i, clear_folder, orbit_number, i)
+                    save_image(radiance, clear_folder, orbit_number, i)
 
 # Function to save three frames as a single image
-def save_image(data, index, folder, orbit_number, frame_index):
+def save_image(data, folder, orbit_number, frame_index):
     # Normalize the radiance data to fit in the range [0, 255] using fixed min and max values
     min_radiance = 0
     max_radiance = 24

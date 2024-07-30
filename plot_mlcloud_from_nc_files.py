@@ -9,7 +9,7 @@ nc_output_folder = 'nc_files_with_mlcloud'
 
 # Function to extract orbit number from filename
 def extract_orbit_number(filename):
-    return int(filename.split('_')[3])
+    return int(filename.split('_')[4])
 
 # Read the new l1c .nc files and plot the MLCloud values
 for file_name in os.listdir(nc_output_folder):
