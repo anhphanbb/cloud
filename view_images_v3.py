@@ -8,16 +8,15 @@ Created on Sun Mar 10 13:15:17 2024
 import netCDF4 as nc
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.widgets import Slider, RangeSlider
+from matplotlib.widgets import Slider, RangeSlider, Button
 import os
 import re
 
 # Define the path to the parent directory where the dataset is located
 parent_directory = 'nc_files_with_mlcloud'
-# parent_directory = 'Day1'
 
 # Define the orbit number
-orbit_number = 113  # orbit number
+orbit_number = 90  # orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
@@ -67,20 +66,21 @@ dataset.close()
 current_time_step = 0
 vmin_default = 4
 vmax_default = 12
+show_bounding_box = True  # Variable to track the state of the bounding box display
 
-# Create figure and axes for the plot and histogram
-fig, axs = plt.subplots(1, 2, figsize=(15, 5))  # 1 row, 2 columns for side-by-side
+# Create figure and axes for the plot
+fig, ax = plt.subplots(figsize=(12, 12))
 
-# Adjust the figure to add space for the slider and range slider
+# Adjust the figure to add space for the sliders
 plt.subplots_adjust(bottom=0.3)
 
-# Create the slider for time step on the bottom left
-ax_slider = plt.axes([0.1, 0.05, 0.35, 0.03], facecolor='lightgoldenrodyellow')
-slider = Slider(ax_slider, 'Time Step', 0, radiance.shape[0] - 1, valinit=current_time_step, valfmt='%0.0f')
-
 # Create the range slider for vmin and vmax on the bottom right
-ax_range_slider = plt.axes([0.55, 0.05, 0.35, 0.03], facecolor='lightgoldenrodyellow')
-range_slider = RangeSlider(ax_range_slider, 'vmin - vmax', 0, 28, valinit=(vmin_default, vmax_default))
+ax_range_slider = plt.axes([0.1, 0.1, 0.7, 0.03], facecolor='lightgoldenrodyellow')
+range_slider = RangeSlider(ax_range_slider, 'vmin - vmax', 0, 30, valinit=(vmin_default, vmax_default))
+
+# Create the slider for time step on the bottom left
+ax_slider = plt.axes([0.1, 0.05, 0.7, 0.03], facecolor='lightgoldenrodyellow')
+slider = Slider(ax_slider, 'Time Step', 0, radiance.shape[0] - 1, valinit=current_time_step, valfmt='%0.0f')
 
 colorbar = None  # To keep track of the colorbar
 
@@ -95,35 +95,30 @@ def update_plot(time_step):
     vmin, vmax = min(vmin, vmax), max(vmin, vmax)
     
     # Clear previous content
-    axs[0].clear()
+    ax.clear()
     radiance_at_time = radiance[current_time_step, :, :]
     iss_lat = iss_latitude[current_time_step]
     iss_lon = iss_longitude[current_time_step]
     
     # Plot the radiance data
-    img = axs[0].imshow(radiance_at_time, origin='lower', cmap='gray', aspect='auto', vmin=vmin, vmax=vmax)
-    axs[0].set_title(f'Radiance at Time Step {current_time_step}\nISS Position: Lat {iss_lat:.2f}, Lon {iss_lon:.2f}\nOrbit Number: {orbit_str}')
-    axs[0].set_xlabel('Spatial Dimension X')
-    axs[0].set_ylabel('Spatial Dimension Y')
+    img = ax.imshow(radiance_at_time, origin='lower', cmap='gray', aspect='auto', vmin=vmin, vmax=vmax)
+    ax.set_title(f'Radiance at Time Step {current_time_step}\nISS Position: Lat {iss_lat:.2f}, Lon {iss_lon:.2f}\nOrbit Number: {orbit_str}')
+    ax.set_xlabel('Spatial Dimension X')
+    ax.set_ylabel('Spatial Dimension Y')
     
-    # Draw bounding box for y = -1 to y = 300
-    rect = plt.Rectangle((142, -1), 16, 301, linewidth=1, edgecolor='blue', facecolor='none', linestyle='-')
-    axs[0].add_patch(rect)
+    # Draw bounding box if enabled
+    if show_bounding_box:
+        rect = plt.Rectangle((142, -1), 16, 301, linewidth=1, edgecolor='blue', facecolor='none', linestyle='-')
+        ax.add_patch(rect)
     
     # Set the aspect of the plot axis to equal, enforcing a 1:1 aspect ratio
-    axs[0].set_aspect('equal')
+    ax.set_aspect('equal')
 
-    # Update histogram for all data points
-    radiance_flat = radiance_at_time.flatten()
-    hist, bins = np.histogram(radiance_flat, bins=14, range=(0, 28))
-    
-    axs[1].clear()
-    axs[1].bar(bins[:-1], hist, width=(bins[1] - bins[0]), color='blue', edgecolor='black')
-    axs[1].set_title(f'Histogram of Radiance at Time Step {current_time_step}')
-    axs[1].set_xlabel('Radiance Value')
-    axs[1].set_ylabel('Frequency')
-    axs[1].set_ylim(0, 60000)  # Set the y-axis limit to fix the height of the histogram
-    axs[1].grid(True)
+    # Add colorbar if it doesn't exist
+    if colorbar is None:
+        colorbar = plt.colorbar(img, ax=ax, orientation='vertical')
+    else:
+        colorbar.update_normal(img)
 
     plt.draw()
 
@@ -140,38 +135,58 @@ def update_vmin_vmax(event):
         raise ValueError("No valid data to compute percentiles.")
     
     # Compute the 95th percentile values for vmin and vmax
-    vmin = np.percentile(radiance_flat, 0.4)
-    vmax = np.percentile(radiance_flat, 99.7)
+    vmin = np.percentile(radiance_flat, 0.4)*0.9
+    vmax = np.percentile(radiance_flat, 99.7)*1.05
     
     # Update the range slider
     range_slider.set_val((vmin, vmax))
+
+def toggle_bounding_box(event):
+    global show_bounding_box
+    show_bounding_box = not show_bounding_box
+    update_plot(current_time_step)
 
 # Connect the slider and range slider to the update_plot function
 slider.on_changed(lambda val: update_plot(val))
 range_slider.on_changed(lambda val: update_plot(slider.val))
 
 # Create a button to update vmin and vmax based on the 95th percentile
-ax_button = plt.axes([0.7, 0.15, 0.1, 0.03], facecolor='lightgoldenrodyellow')
-button = plt.Button(ax_button, 'Set vmin-vmax')
+ax_button_vmin_vmax = plt.axes([0.4, 0.15, 0.1, 0.03], facecolor='lightgoldenrodyellow')
+button_vmin_vmax = Button(ax_button_vmin_vmax, 'Set vmin-vmax')
 
 # Connect the button to the update_vmin_vmax function
-button.on_clicked(update_vmin_vmax)
+button_vmin_vmax.on_clicked(update_vmin_vmax)
+
+# Create a button to toggle the bounding box display
+ax_button_bbox = plt.axes([0.52, 0.15, 0.1, 0.03], facecolor='lightgoldenrodyellow')
+button_bbox = Button(ax_button_bbox, 'Toggle BBox')
+
+# Connect the button to the toggle_bounding_box function
+button_bbox.on_clicked(toggle_bounding_box)
 
 # Function to handle key presses for time step navigation
 def on_key(event):
     global current_time_step
+
     if event.key == 'right':
         current_time_step = min(current_time_step + 1, radiance.shape[0] - 1)
     elif event.key == 'left':
         current_time_step = max(current_time_step - 1, 0)
     elif event.key == 'up':
-        current_time_step = max(current_time_step - 20, 0)
+        current_time_step = max(current_time_step - 1, 0)
     elif event.key == 'down':
-        current_time_step = min(current_time_step + 20, radiance.shape[0] - 1)
+        current_time_step = min(current_time_step + 1, radiance.shape[0] - 1)
+
     slider.set_val(current_time_step)  # This will automatically update the plot via the slider's on_changed event
 
 # Connect the key press event to the on_key function
 fig.canvas.mpl_connect('key_press_event', on_key)
+
+# Set a timer to handle continuous key presses
+timer_interval = 20  # Set the interval to a lower value for more frequent updates
+timer = fig.canvas.new_timer(interval=timer_interval)
+timer.add_callback(lambda: on_key(None))
+timer.start()
 
 # Initial plot update
 update_plot(current_time_step)

@@ -32,7 +32,7 @@ for file_name in os.listdir(nc_input_folder):
             predictions_df = predictions_df.sort_values(by='Frame #')
             
             # Add new variable 'MLCloud' using the running binary predictions
-            mlcloud = predictions_df['Running Average Binary Prediction'].to_numpy()
+            mlcloud = predictions_df['Filtered Binary Prediction'].to_numpy()
             
             # Extend mlcloud with edge frame values
             if len(mlcloud) > 0:
@@ -46,18 +46,23 @@ for file_name in os.listdir(nc_input_folder):
             
             # Read the .nc file and create a new file with the 'MLCloud' variable
             new_nc_file_path = os.path.join(nc_output_folder, create_new_filename(file_name))
-            with Dataset(nc_file_path, 'r') as src_nc, Dataset(new_nc_file_path, 'w') as dst_nc:
+            with Dataset(nc_file_path, 'r') as src_nc, Dataset(new_nc_file_path, 'w', format=src_nc.file_format) as dst_nc:
+                # Copy global attributes
+                dst_nc.setncatts({k: src_nc.getncattr(k) for k in src_nc.ncattrs()})
+                
                 # Copy dimensions
                 for name, dimension in src_nc.dimensions.items():
                     dst_nc.createDimension(name, len(dimension) if not dimension.isunlimited() else None)
                 
                 # Copy variables
                 for name, variable in src_nc.variables.items():
-                    x = dst_nc.createVariable(name, variable.datatype, variable.dimensions)
+                    x = dst_nc.createVariable(name, variable.datatype, variable.dimensions, zlib=variable.filters().get('zlib', False))
                     dst_nc[name][:] = src_nc[name][:]
+                    # Copy variable attributes
+                    dst_nc[name].setncatts({k: variable.getncattr(k) for k in variable.ncattrs()})
                 
                 # Add 'MLCloud' variable
-                mlcloud_var = dst_nc.createVariable('MLCloud', 'i4', ('time',))
+                mlcloud_var = dst_nc.createVariable('MLCloud', 'i4', ('time',), zlib=True)
                 mlcloud_var[:] = mlcloud
                 print(f"Created new file with 'MLCloud' variable: {new_nc_file_path}")
         else:
