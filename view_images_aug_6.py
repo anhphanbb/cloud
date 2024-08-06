@@ -42,10 +42,15 @@ dataset.close()
 
 # Initial setup
 current_time_step = 0
-vmin_default = 4
-vmax_default = 12
 show_bounding_box = True  # Variable to track the state of the bounding box display
 show_lines = False  # Variable to track the state of the vertical and horizontal lines display
+
+# Calculate initial vmin and vmax using the 0.4th and 99.7th percentiles
+radiance_at_time_0 = radiance[0, :, :]
+radiance_flat = radiance_at_time_0.flatten()
+radiance_flat = radiance_flat[~np.isnan(radiance_flat)]
+vmin_default = np.percentile(radiance_flat, 0.4) * 0.96
+vmax_default = np.percentile(radiance_flat, 99.7) * 1.05
 
 # Create figure and axes for the plot
 fig, ax = plt.subplots(figsize=(12, 12))
@@ -62,6 +67,9 @@ ax_slider = plt.axes([0.1, 0.05, 0.7, 0.03], facecolor='lightgoldenrodyellow')
 slider = Slider(ax_slider, 'Time Step', 0, radiance.shape[0] - 1, valinit=current_time_step, valfmt='%0.0f')
 
 colorbar = None  # To keep track of the colorbar
+
+# Set initial vmin and vmax
+vmin, vmax = vmin_default, vmax_default
 
 def update_plot(time_step):
     global colorbar, current_time_step
@@ -111,7 +119,7 @@ def update_plot(time_step):
     plt.draw()
 
 def update_vmin_vmax(event):
-    global current_time_step
+    global vmin, vmax, current_time_step
     radiance_at_time = radiance[current_time_step, :, :]
     radiance_flat = radiance_at_time.flatten()
     
@@ -122,18 +130,20 @@ def update_vmin_vmax(event):
     if len(radiance_flat) == 0:
         raise ValueError("No valid data to compute percentiles.")
     
-    # Compute the 95th percentile values for vmin and vmax
-    vmin = np.percentile(radiance_flat, 0.4)*0.9
-    vmax = np.percentile(radiance_flat, 99.7)*1.05
+    # Compute the percentile values for vmin and vmax
+    vmin = np.percentile(radiance_flat, 0.4) * 0.96
+    vmax = np.percentile(radiance_flat, 99.7) * 1.05
     
     # Update the range slider
     range_slider.set_val((vmin, vmax))
 
 def increase_range(event):
+    global vmin, vmax
     vmin, vmax = range_slider.val
     range_slider.set_val((vmin * 0.96, vmax * 1.05))
 
 def decrease_range(event):
+    global vmin, vmax
     vmin, vmax = range_slider.val
     range_slider.set_val((vmin / 0.96, vmax / 1.05))
 
