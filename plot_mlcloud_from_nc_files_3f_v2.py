@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix
 
 # Define the output folder for the new .nc files and the CSV file path
 nc_output_folder = 'nc_files_with_mlcloud'
-csv_file_path = 'cloud_intervals_to_compare_july_29.csv'
+csv_file_path = 'cloud_intervals_to_compare_dallin.csv'
 predictions_folder = 'predictions'
 
 # Read the CSV file with cloud intervals
@@ -58,32 +58,35 @@ def plot_confusion_matrix(y_true, y_pred, orbit_number):
 for file_name in os.listdir(predictions_folder):
     if file_name.endswith('.csv'):
         orbit_number = int(file_name.split('_')[2].replace('.csv', ''))
-        csv_file_path = os.path.join(predictions_folder, file_name)
         
-        # Filter CSV rows for the current orbit
-        orbit_intervals_df = cloud_intervals_df[cloud_intervals_df['Orbit #'] == orbit_number]
-        
-        # Read cloud intervals
-        intervals = [(row['Start'], row['End']) for _, row in orbit_intervals_df.iterrows()]
-        
-        # Load the filtered binary predictions
-        predictions_df = pd.read_csv(csv_file_path)
-        filtered_binary_pred = predictions_df['Filtered Binary Prediction'].to_numpy()
-        
-        # Create cloud array
-        cloud_array = create_cloud_array(len(filtered_binary_pred), intervals)
-        
-        # Plot MLCloud values, filtered binary predictions, and cloud array
-        plt.figure(figsize=(12, 6))
-        plt.plot(filtered_binary_pred, label='Filtered Binary Prediction', color='green', linestyle='-')
-        plt.plot(cloud_array, label='Cloud Array from CSV', color='red', linestyle='-')
-        plt.title(f'Filtered Binary Predictions and Cloud Array for Orbit {orbit_number}')
-        plt.xlabel('Frame #')
-        plt.ylabel('Value')
-        plt.legend()
-        plt.show()
-        
-        # Plot confusion matrix
-        plot_confusion_matrix(cloud_array, filtered_binary_pred, orbit_number)
+        # Check if the orbit number exists in the cloud intervals CSV
+        if orbit_number in cloud_intervals_df['Orbit #'].values:
+            csv_file_path = os.path.join(predictions_folder, file_name)
+            
+            # Filter CSV rows for the current orbit
+            orbit_intervals_df = cloud_intervals_df[cloud_intervals_df['Orbit #'] == orbit_number]
+            
+            # Read cloud intervals
+            intervals = [(row['Start'], row['End']) for _, row in orbit_intervals_df.iterrows()]
+            
+            # Load the filtered binary predictions
+            predictions_df = pd.read_csv(csv_file_path)
+            filtered_binary_pred = predictions_df['Filtered Binary Prediction'].to_numpy()
+            
+            # Create cloud array
+            cloud_array = create_cloud_array(len(filtered_binary_pred), intervals)
+            
+            # Plot MLCloud values, filtered binary predictions, and cloud array
+            plt.figure(figsize=(12, 6))
+            plt.plot(filtered_binary_pred, label='Filtered Binary Prediction', color='green', linestyle='-')
+            plt.plot(cloud_array, label='Cloud Array from CSV', color='red', linestyle='-')
+            plt.title(f'Filtered Binary Predictions and Cloud Array for Orbit {orbit_number}')
+            plt.xlabel('Frame #')
+            plt.ylabel('Value')
+            plt.legend()
+            plt.show()
+            
+            # Plot confusion matrix
+            plot_confusion_matrix(cloud_array, filtered_binary_pred, orbit_number)
 
 print("Processing and plotting completed.")
