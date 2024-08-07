@@ -6,16 +6,16 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
-parent_directory = 'nc_files_with_mlcloud'
+parent_directory = 'l1r_11_updated_07032024'
 
 # Define the orbit number
-orbit_number = 90  # orbit number
+orbit_number = 135  # orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
 
 # Search for the correct file name in all subdirectories
-pattern = re.compile(r'awe_l1c_(.*)_' + orbit_str + r'_(.*)\.nc')
+pattern = re.compile(r'awe_l1r_(.*)_' + orbit_str + r'_(.*)\.nc')
 dataset_filename = None
 dataset_path = None
 
@@ -60,7 +60,7 @@ plt.subplots_adjust(bottom=0.3)
 
 # Create the range slider for vmin and vmax on the bottom right
 ax_range_slider = plt.axes([0.1, 0.1, 0.7, 0.03], facecolor='lightgoldenrodyellow')
-range_slider = RangeSlider(ax_range_slider, 'vmin - vmax', 0, 30, valinit=(vmin_default, vmax_default))
+range_slider = RangeSlider(ax_range_slider, 'vmin - vmax', 0, 40, valinit=(vmin_default, vmax_default))
 
 # Create the slider for time step on the bottom left
 ax_slider = plt.axes([0.1, 0.05, 0.7, 0.03], facecolor='lightgoldenrodyellow')
