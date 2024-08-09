@@ -10,12 +10,15 @@ output_folder = 'images_to_predict'
 # Ensure the output folder exists
 os.makedirs(output_folder, exist_ok=True)
 
-# Bounding box coordinates
-x_start, x_end = 140, 160
-y_start, y_end = 0, 300
+# Bounding box coordinates for three smaller boxes
+boxes = [
+    (140, 160, 0, 100),
+    (140, 160, 100, 200),
+    (140, 160, 200, 300)
+]
 
-# Function to save a single image
-def save_image(data, folder, orbit_number, frame_index):
+# Function to save a single image for a given bounding box
+def save_image(data, folder, orbit_number, frame_index, box_idx):
     # Normalize the radiance data to fit in the range [0, 255] using fixed min and max values
     min_radiance = 0
     max_radiance = 24
@@ -43,10 +46,13 @@ def save_image(data, folder, orbit_number, frame_index):
     if next_frame_norm is not None:
         three_layer_image[..., 2] = next_frame_norm
     
+    # Get the bounding box coordinates
+    x_start, x_end, y_start, y_end = boxes[box_idx]
+
     # Crop the image to the bounding box
     cropped_image = three_layer_image[y_start:y_end, x_start:x_end]
 
-    file_path = os.path.join(folder, f"orbit{orbit_number}_{frame_index}.png")
+    file_path = os.path.join(folder, f"orbit{orbit_number}_box{box_idx}_{frame_index}.png")
     cv2.imwrite(file_path, cropped_image)
     print(f"Saved {file_path}")
 
@@ -55,7 +61,8 @@ def save_radiance_as_images(nc_file_path, orbit_number):
     with Dataset(nc_file_path, 'r') as nc:
         radiance = nc.variables['Radiance'][:]
         for i in range(5, radiance.shape[0] - 5):
-            save_image(radiance, output_folder, orbit_number, i)
+            for box_idx in range(len(boxes)):
+                save_image(radiance, output_folder, orbit_number, i, box_idx)
 
 # Function to parse orbit number from the file name
 def parse_orbit_number(file_name):

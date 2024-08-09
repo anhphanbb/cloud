@@ -60,7 +60,7 @@ plt.subplots_adjust(bottom=0.3)
 
 # Create the range slider for vmin and vmax on the bottom right
 ax_range_slider = plt.axes([0.1, 0.1, 0.7, 0.03], facecolor='lightgoldenrodyellow')
-range_slider = RangeSlider(ax_range_slider, 'vmin - vmax', 0, 30, valinit=(vmin_default, vmax_default))
+range_slider = RangeSlider(ax_range_slider, 'vmin - vmax', 0, 40, valinit=(vmin_default, vmax_default))
 
 # Create the slider for time step on the bottom left
 ax_slider = plt.axes([0.1, 0.05, 0.7, 0.03], facecolor='lightgoldenrodyellow')

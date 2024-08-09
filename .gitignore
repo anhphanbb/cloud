@@ -173,3 +173,4 @@ nc_files_to_predict/
 images_to_predict/
 predictions/
 filtered_predictions/
+one_nc_file/
