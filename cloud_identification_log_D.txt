@@ -4,7 +4,7 @@ Date Started:              July 4th, 2024
 File path:                 C:\Users\Dallin\Documents\GitHub\cloud\
 Current project folder:    l1r_11_updated_07032024
 Current excel spreadsheet: cloud_intervals_112024_D
-Current python file:       view_images_h_s.py
+Current python file:       view_images_aug_6.py
 Dallin's Task:             Even numbered orbits and modulo 15
 Anh's Task:                Odd numbered orbits and modulo 15
 
@@ -20,6 +20,7 @@ view_images.py - shows Qline image as well as radiance image.
 view_images_h.py - shows Qline and frequency over radiance graph.
 view_images_o.py - adaptation of h variant that allows us to just type in the orbit # instead of the entire file path.
 view_images_h_s.py - Same as h variant, but has blue bars down middle for identifying when clouds cross certain pixels.
+view_images_aug_6.py - Added lines dissecting the image into 3 section (high, middle, and low). Toggleable bars have also been added that cut the entire image into equal segments the width of the center lines and a third the height of the image.
 
 Improvement Notes:
 
@@ -37,3 +38,9 @@ July 10th - Updated python program. We are now using the view_images_h_s.py vari
 July 10th - Identified clouds in even orbits up to, and including, orbit 45. Sometimes there are small individual clouds that I skip with the center alignment tool, but I include in the wideframe. Ask Dominique if that's acceptable. Clarify the current method outlined in the July 10th log is the correct method and proceed.
 
 July 15th - All modulo 15 orbits have been completed and all evens up to 60. There were two that had heavy interference from the solar panels so I marked them accordingly and skipped. I figure if we really need that data we can acquire it later.
+
+July 31st - Edited some erroneous and missing datapoints from earlier orbits. Orbits up to 75 have all been completed. 
+
+August 6th - Clouds from even orbits from 76 through 138 are logged. Orbits 112 and 114 are missing from the project folder. Next step is to use Dominique's model to group clouds horizontally into three regions, top, middle, and bottom. I will start that step next time.
+
+August 7th - The new goal is to take the centered cloud data points we've gathered and split the data into 3 segments consisting of high, middle, and bottom. These are based on where the clouds enter and exit the center of the image with respect to the vertical axis. I've started with modulo 15 orbits from orbit 75 through 135. The other modulo 15 orbits will be prioritized and then even orbits will be filled in. 

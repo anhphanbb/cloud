@@ -6,16 +6,16 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
-parent_directory = 'nc_files_with_mlcloud'
+parent_directory = 'l1r_11_updated_07032024'
 
 # Define the orbit number
-orbit_number = 90  # orbit number
+orbit_number = 135  # orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
 
 # Search for the correct file name in all subdirectories
-pattern = re.compile(r'awe_l1c_(.*)_' + orbit_str + r'_(.*)\.nc')
+pattern = re.compile(r'awe_l1r_(.*)_' + orbit_str + r'_(.*)\.nc')
 dataset_filename = None
 dataset_path = None
 
