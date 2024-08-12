@@ -22,7 +22,7 @@ model = load_model(model_path)
 
 # Define input and output folders
 input_folder = 'images_to_predict'
-output_folder = 'predictions/3fs'
+output_folder = 'predictions/3fsx3'
 
 # Ensure the output folder exists
 os.makedirs(output_folder, exist_ok=True)

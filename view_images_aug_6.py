@@ -98,7 +98,7 @@ def update_plot(time_step):
         for x in range(19, radiance_at_time.shape[1], 20):
             ax.axvline(x=x, color='green', linestyle='-')
         for y in range(99, radiance_at_time.shape[0], 100):
-            ax.axhline(y=y, color='red', linestyle='-')
+            ax.axhline(y=y, color='green', linestyle='-')
     
     # Draw bounding box if enabled
     if show_bounding_box:

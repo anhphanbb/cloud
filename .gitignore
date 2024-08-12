@@ -174,3 +174,4 @@ images_to_predict/
 predictions/
 filtered_predictions/
 one_nc_file/
+one_nc_file_with_mlcloud/
