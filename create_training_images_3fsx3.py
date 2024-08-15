@@ -13,7 +13,7 @@ import numpy as np
 import random
 
 # Path to the CSV file with filenames
-csv_file_path = 'csv/cloud_intervals_3fs_aug_8.csv'
+csv_file_path = 'csv/newest/cloud_intervals_3fs_aug_13.csv'
 
 # Read the CSV file
 data = pd.read_csv(csv_file_path)
