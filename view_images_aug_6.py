@@ -9,7 +9,7 @@ import re
 parent_directory = 'l1r_11_updated_07032024'
 
 # Define the orbit number
-orbit_number = 135  # orbit number
+orbit_number = 50  # orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
@@ -205,9 +205,9 @@ def on_key(event):
     elif event.key == 'left':
         current_time_step = max(current_time_step - 1, 0)
     elif event.key == 'up':
-        current_time_step = max(current_time_step - 1, 0)
+        current_time_step = max(current_time_step - 20, 0)
     elif event.key == 'down':
-        current_time_step = min(current_time_step + 1, radiance.shape[0] - 1)
+        current_time_step = min(current_time_step + 20, radiance.shape[0] - 1)
     elif event.key == 'v':
         update_vmin_vmax(None)
     elif event.key == 'b':

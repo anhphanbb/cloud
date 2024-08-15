@@ -43,4 +43,12 @@ July 31st - Edited some erroneous and missing datapoints from earlier orbits. Or
 
 August 6th - Clouds from even orbits from 76 through 138 are logged. Orbits 112 and 114 are missing from the project folder. Next step is to use Dominique's model to group clouds horizontally into three regions, top, middle, and bottom. I will start that step next time.
 
-August 7th - The new goal is to take the centered cloud data points we've gathered and split the data into 3 segments consisting of high, middle, and bottom. These are based on where the clouds enter and exit the center of the image with respect to the vertical axis. I've started with modulo 15 orbits from orbit 75 through 135. The other modulo 15 orbits will be prioritized and then even orbits will be filled in. 
+August 7th - The new goal is to take the centered cloud data points we've gathered and split the data into 3 segments consisting of high, middle, and bottom. These are based on where the clouds enter and exit the center of the image with respect to the vertical axis. I've started with modulo 15 orbits from orbit 75 through 135. The other modulo 15 orbits will be prioritized and then even orbits will be filled in.
+
+August 9th - All modulo 15 orbits are completed. I'm now filling in all the even orbits. My work since last week was presented in the team meeting. Yucheng would like me to show an example of how the clouds move next meeting (see work_notes.txt for more details) Starting Monday I will pick up where I left off. 
+
+August 12th - Even orbits from 2 to 14 complete.
+
+August 13th - Even orbits from 16 to 26 complete. Some of Senator (Traitor) Mike Lee's staff came by the office today. Ludger showed them around and explained what we're doing and how taxpayer money is being spent. That took awhile today so I wasn't able to complete as much as I liked given how long I was in the lab today.
+
+August 14th - Worked from home, even orbits are complete from 28 to 44. I changed my local copy of view_images_aug_6.py to jump 20 frames when the up/down keyboard inputs are used. I'm not going to commit the change until I've had a chance to speak with Anh to see if he wants that featured added.
