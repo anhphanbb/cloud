@@ -144,7 +144,7 @@ for subfolder in sorted(os.listdir(main_folder)):
             df.loc[df['Box Index'] == box_idx, 'Filtered Binary Prediction'] = filtered_binary_pred
 
         # Save the results for the current orbit in the current subfolder
-        output_csv = os.path.join(output_folder, f'{subfolder}_predictions_orbit_{orbit_number}.csv')
+        output_csv = os.path.join(output_folder, f'predictions_orbit_{orbit_number}.csv')
         df.to_csv(output_csv, index=False)
 
 # End timer

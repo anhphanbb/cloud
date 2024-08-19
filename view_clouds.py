@@ -6,6 +6,7 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
+# parent_directory = 'nc_files_with_mlcloud'
 parent_directory = 'one_nc_file_with_mlcloud'
 
 # Define the orbit number
@@ -154,8 +155,8 @@ def update_plot(time_step):
                 y_end - y_start,
                 linewidth=0, 
                 edgecolor='none', 
-                facecolor='pink', 
-                alpha=0.2
+                facecolor='blue', 
+                alpha=0.25
             )
             ax.add_patch(overlay)
     
