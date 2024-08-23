@@ -8,11 +8,6 @@ nc_input_folder = 'one_nc_file'
 predictions_folder = 'predictions/3fsx3'
 nc_output_folder = 'one_nc_file_with_mlcloud'
 
-# # Define input and output folders
-# nc_input_folder = 'nc_files_to_predict'
-# predictions_folder = 'predictions/3fsx3'
-# nc_output_folder = 'nc_files_with_mlcloud'
-
 # Ensure the output folder exists
 os.makedirs(nc_output_folder, exist_ok=True)
 
@@ -75,10 +70,13 @@ for file_name in os.listdir(nc_input_folder):
             predictions_df = predictions_df.sort_values(by=['Frame #', 'Box Index'])
             
             # Pivot the DataFrame to have Frame # as the index and 9 columns for the boxes
-            pivot_df = predictions_df.pivot(index='Frame #', columns='Box Index', values='Filtered Binary Prediction')
+            pivot_df = predictions_df.pivot(index='Frame #', columns='Box Index', values='Running Average Probability')
             
             # Convert the DataFrame to a NumPy array
             mlcloud = pivot_df.to_numpy()
+            
+            # Scale the probabilities from 0-1 to 0-100
+            mlcloud = np.round(mlcloud * 100).astype(np.int32)
             
             # Extend mlcloud with additional boxes and shifts
             extended_mlcloud = extend_mlcloud_with_shifts(mlcloud)
