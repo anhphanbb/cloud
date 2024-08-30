@@ -269,9 +269,9 @@ def on_key(event):
     elif event.key == 'left':
         current_time_step = max(current_time_step - 1, 0)
     elif event.key == 'up':
-        current_time_step = max(current_time_step - 1, 0)
+        current_time_step = max(current_time_step - 20, 0)
     elif event.key == 'down':
-        current_time_step = min(current_time_step + 1, radiance.shape[0] - 1)
+        current_time_step = min(current_time_step + 20, radiance.shape[0] - 1)
     elif event.key == 'v':
         update_vmin_vmax(None)
     elif event.key == 'b':
