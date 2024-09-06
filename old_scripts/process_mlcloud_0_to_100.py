@@ -3,10 +3,15 @@ import pandas as pd
 import numpy as np
 from netCDF4 import Dataset
 
+# # Define input and output folders
+# nc_input_folder = 'one_nc_file'
+# predictions_folder = 'predictions/3fsx3'
+# nc_output_folder = 'one_nc_file_with_mlcloud'
+
 # Define input and output folders
-nc_input_folder = 'one_nc_file'
+nc_input_folder = 'l1r_11_updated_07032024'
 predictions_folder = 'predictions/3fsx3'
-nc_output_folder = 'one_nc_file_with_mlcloud'
+nc_output_folder = 'nc_files_with_mlcloud'
 
 # Ensure the output folder exists
 os.makedirs(nc_output_folder, exist_ok=True)

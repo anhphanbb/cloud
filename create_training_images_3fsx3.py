@@ -16,7 +16,7 @@ import random
 import re
 
 # Path to the CSV file with filenames
-csv_file_path = 'csv/newest/cloud_intervals_3fs_aug_30.csv'
+csv_file_path = 'csv/newest/cloud_intervals_3fs_aug_8.csv'
 parent_directory = 'l1r_11_updated_07032024'
 
 # Read the CSV file
@@ -35,17 +35,31 @@ os.makedirs(cloud_folder, exist_ok=True)
 os.makedirs(clear_folder, exist_ok=True)
 
 # Bounding box coordinates for nine smaller boxes
+# boxes = [
+#     (140, 160, 0, 100),     # Bottom Row, Center Column
+#     (140, 160, 100, 200),   # Middle Row, Center Column
+#     (140, 160, 200, 300),   # Top Row, Center Column
+#     (180, 200, 0, 100),     # Bottom Row, Center +2 Column
+#     (180, 200, 100, 200),   # Middle Row, Center +2 Column
+#     (180, 200, 200, 300),   # Top Row, Center +2 Column
+#     (80, 100, 0, 100),      # Bottom Row, Center -3 Column
+#     (80, 100, 100, 200),    # Middle Row, Center -3 Column
+#     (80, 100, 200, 300)     # Top Row, Center -3 Column
+# ]
+
+# Expand the boxes
 boxes = [
-    (140, 160, 0, 100),     # Bottom Row, Center Column
-    (140, 160, 100, 200),   # Middle Row, Center Column
-    (140, 160, 200, 300),   # Top Row, Center Column
-    (180, 200, 0, 100),     # Bottom Row, Center +2 Column
-    (180, 200, 100, 200),   # Middle Row, Center +2 Column
-    (180, 200, 200, 300),   # Top Row, Center +2 Column
-    (80, 100, 0, 100),      # Bottom Row, Center -3 Column
-    (80, 100, 100, 200),    # Middle Row, Center -3 Column
-    (80, 100, 200, 300)     # Top Row, Center -3 Column
+    (135, 165, 0, 106),     # Bottom Row, Center Column
+    (135, 165, 97, 203),   # Middle Row, Center Column
+    (135, 165, 194, 300),   # Top Row, Center Column
+    (175, 205, 0, 106),     # Bottom Row, Center +2 Column
+    (175, 205, 97, 203),   # Middle Row, Center +2 Column
+    (175, 205, 194, 300),   # Top Row, Center +2 Column
+    (75, 105, 0, 106),      # Bottom Row, Center -3 Column
+    (75, 105, 97, 203),    # Middle Row, Center -3 Column
+    (75, 105, 194, 300)     # Top Row, Center -3 Column
 ]
+
 
 # Function to check if a frame is within any of the cloud intervals
 def is_within_cloud_intervals(frame_index, interval):
@@ -97,14 +111,14 @@ def save_image(data, folder, orbit_number, frame_index, box_idx):
     norm_radiance = np.nan_to_num(norm_radiance, nan=0, posinf=255, neginf=0).astype(np.uint8)
 
     prev_frame_norm = None
-    if frame_index >= 5:
-        prev_frame = data[frame_index - 5]
+    if frame_index >= 0:
+        prev_frame = data[frame_index - 0]
         prev_frame_norm = np.clip((prev_frame - min_radiance) / (max_radiance - min_radiance) * 255, 0, 255)
         prev_frame_norm = np.nan_to_num(prev_frame_norm, nan=0, posinf=255, neginf=0).astype(np.uint8)
 
     next_frame_norm = None
-    if frame_index < data.shape[0] - 5:
-        next_frame = data[frame_index + 5]
+    if frame_index < data.shape[0] - 0:
+        next_frame = data[frame_index + 0]
         next_frame_norm = np.clip((next_frame - min_radiance) / (max_radiance - min_radiance) * 255, 0, 255)
         next_frame_norm = np.nan_to_num(next_frame_norm, nan=0, posinf=255, neginf=0).astype(np.uint8)
 
