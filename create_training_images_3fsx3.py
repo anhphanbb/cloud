@@ -14,10 +14,11 @@ import cv2
 import numpy as np
 import random
 import re
+import shutil  # Import shutil to delete files
 
 # Path to the CSV file with filenames
-csv_file_path = 'csv/newest/cloud_intervals_3fs_aug_8.csv'
-parent_directory = 'l1r_11_updated_07032024'
+csv_file_path = 'csv/newest/cloud_intervals_3fs_sep_24.csv'
+parent_directory = 'l1r_11_updated_09292024'
 
 # Read the CSV file
 data = pd.read_csv(csv_file_path)
@@ -34,36 +35,60 @@ clear_folder = 'images/clear'
 os.makedirs(cloud_folder, exist_ok=True)
 os.makedirs(clear_folder, exist_ok=True)
 
+# Function to clear all files in a given folder
+def clear_images(folder_path):
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)  # Remove the file
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)  # Remove the directory and its contents
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
+# Clear both folders before saving new images
+clear_images(cloud_folder)
+clear_images(clear_folder)
+
+
 # Bounding box coordinates for nine smaller boxes
-# boxes = [
-#     (140, 160, 0, 100),     # Bottom Row, Center Column
-#     (140, 160, 100, 200),   # Middle Row, Center Column
-#     (140, 160, 200, 300),   # Top Row, Center Column
-#     (180, 200, 0, 100),     # Bottom Row, Center +2 Column
-#     (180, 200, 100, 200),   # Middle Row, Center +2 Column
-#     (180, 200, 200, 300),   # Top Row, Center +2 Column
-#     (80, 100, 0, 100),      # Bottom Row, Center -3 Column
-#     (80, 100, 100, 200),    # Middle Row, Center -3 Column
-#     (80, 100, 200, 300)     # Top Row, Center -3 Column
-# ]
+boxes = [
+    (140, 160, 0, 100),     # Bottom Row, Center Column
+    (140, 160, 100, 200),   # Middle Row, Center Column
+    (140, 160, 200, 300),   # Top Row, Center Column
+    (180, 200, 0, 100),     # Bottom Row, Center +2 Column
+    (180, 200, 100, 200),   # Middle Row, Center +2 Column
+    (180, 200, 200, 300),   # Top Row, Center +2 Column
+    (80, 100, 0, 100),      # Bottom Row, Center -3 Column
+    (80, 100, 100, 200),    # Middle Row, Center -3 Column
+    (80, 100, 200, 300)     # Top Row, Center -3 Column
+]
 
 # Expand the boxes
-boxes = [
-    (135, 165, 0, 106),     # Bottom Row, Center Column
-    (135, 165, 97, 203),   # Middle Row, Center Column
-    (135, 165, 194, 300),   # Top Row, Center Column
-    (175, 205, 0, 106),     # Bottom Row, Center +2 Column
-    (175, 205, 97, 203),   # Middle Row, Center +2 Column
-    (175, 205, 194, 300),   # Top Row, Center +2 Column
-    (75, 105, 0, 106),      # Bottom Row, Center -3 Column
-    (75, 105, 97, 203),    # Middle Row, Center -3 Column
-    (75, 105, 194, 300)     # Top Row, Center -3 Column
-]
+# boxes = [
+#     (135, 165, 0, 106),     # Bottom Row, Center Column
+#     (135, 165, 97, 203),   # Middle Row, Center Column
+#     (135, 165, 194, 300),   # Top Row, Center Column
+#     (175, 205, 0, 106),     # Bottom Row, Center +2 Column
+#     (175, 205, 97, 203),   # Middle Row, Center +2 Column
+#     (175, 205, 194, 300),   # Top Row, Center +2 Column
+#     (75, 105, 0, 106),      # Bottom Row, Center -3 Column
+#     (75, 105, 97, 203),    # Middle Row, Center -3 Column
+#     (75, 105, 194, 300)     # Top Row, Center -3 Column
+# ]
 
 
 # Function to check if a frame is within any of the cloud intervals
 def is_within_cloud_intervals(frame_index, interval):
     return interval[0] <= frame_index <= interval[1]
+
+# Function to check if a frame is clear (more than 5 frames away from cloud intervals)
+def is_clear_frame(frame_index, intervals, threshold=5):
+    for interval in intervals:
+        if interval[0] - threshold <= frame_index <= interval[1] + threshold:
+            return False
+    return True
 
 # Function to search for the correct .nc file based on the orbit number
 def find_nc_file(parent_directory, orbit_number):
@@ -76,7 +101,8 @@ def find_nc_file(parent_directory, orbit_number):
     raise FileNotFoundError(f"No file found for orbit number {orbit_str}")
 
 # Function to read and save "Radiance" variable as images
-def save_radiance_as_images(nc_file_path, orbit_number, cloud_intervals_list, cloud_chance=0.25, clear_chance=0.02):
+# Function to read and save "Radiance" variable as images
+def save_radiance_as_images(nc_file_path, orbit_number, cloud_intervals_list, cloud_chance=0.25, clear_chance=0.05):
     with Dataset(nc_file_path, 'r') as nc:
         radiance = nc.variables['Radiance'][:]
         num_frames = radiance.shape[0]
@@ -94,13 +120,15 @@ def save_radiance_as_images(nc_file_path, orbit_number, cloud_intervals_list, cl
                                 save_image(radiance, cloud_folder, orbit_number, i - 13, box_idx + 3)
                             if i < num_frames - 25:
                                 save_image(radiance, cloud_folder, orbit_number, i + 19, box_idx + 6)
-                    else:
-                        if random.random() < clear_chance:
-                            save_image(radiance, clear_folder, orbit_number, i, box_idx)
-                            if i >= 18:
-                                save_image(radiance, clear_folder, orbit_number, i - 13, box_idx + 3)
-                            if i < num_frames - 25:
-                                save_image(radiance, clear_folder, orbit_number, i + 19, box_idx + 6)
+                
+                # Check if the frame is clear and save as a clear image
+                if is_clear_frame(i, intervals) and random.random() < clear_chance:
+                    save_image(radiance, clear_folder, orbit_number, i, box_idx)
+                    if i >= 18:
+                        save_image(radiance, clear_folder, orbit_number, i - 13, box_idx + 3)
+                    if i < num_frames - 25:
+                        save_image(radiance, clear_folder, orbit_number, i + 19, box_idx + 6)
+
 
 # Function to save three frames as a single image
 def save_image(data, folder, orbit_number, frame_index, box_idx):
@@ -111,14 +139,14 @@ def save_image(data, folder, orbit_number, frame_index, box_idx):
     norm_radiance = np.nan_to_num(norm_radiance, nan=0, posinf=255, neginf=0).astype(np.uint8)
 
     prev_frame_norm = None
-    if frame_index >= 0:
-        prev_frame = data[frame_index - 0]
+    if frame_index >= 5:
+        prev_frame = data[frame_index - 5]
         prev_frame_norm = np.clip((prev_frame - min_radiance) / (max_radiance - min_radiance) * 255, 0, 255)
         prev_frame_norm = np.nan_to_num(prev_frame_norm, nan=0, posinf=255, neginf=0).astype(np.uint8)
 
     next_frame_norm = None
-    if frame_index < data.shape[0] - 0:
-        next_frame = data[frame_index + 0]
+    if frame_index < data.shape[0] - 5:
+        next_frame = data[frame_index + 5]
         next_frame_norm = np.clip((next_frame - min_radiance) / (max_radiance - min_radiance) * 255, 0, 255)
         next_frame_norm = np.nan_to_num(next_frame_norm, nan=0, posinf=255, neginf=0).astype(np.uint8)
 
