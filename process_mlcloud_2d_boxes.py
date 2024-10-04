@@ -4,14 +4,14 @@ import numpy as np
 from netCDF4 import Dataset
 
 # Define input and output folders
-# nc_input_folder = 'one_nc_file'
-# predictions_folder = 'predictions/3fsx3'
-# nc_output_folder = 'one_nc_file_with_mlcloud'
-
-# Define input and output folders
-nc_input_folder = 'l1r_11_updated_09292024'
+nc_input_folder = 'one_nc_file'
 predictions_folder = 'predictions/3fsx3'
-nc_output_folder = 'nc_files_with_mlcloud'
+nc_output_folder = 'one_nc_file_with_mlcloud'
+
+# # Define input and output folders
+# nc_input_folder = 'l1r_11_updated_09292024'
+# predictions_folder = 'predictions/3fsx3'
+# nc_output_folder = 'nc_files_with_mlcloud'
 
 # Ensure the output folder exists
 os.makedirs(nc_output_folder, exist_ok=True)
@@ -39,11 +39,11 @@ box_mapping = [
 # Function to extend MLCloud values with shifts
 def extend_mlcloud_with_shifts(mlcloud):
     num_frames, num_boxes = mlcloud.shape
-    extended_mlcloud = np.zeros((num_frames, 14, 3))  # 14 rows (y_box_along_track) and 3 columns (x_box_cross_track)
+    extended_mlcloud = np.zeros((num_frames, 3, 14))  # 14 column (x_box_along_track) and 3 row (y_box_cross_track)
     
     # Copy original boxes (0-8)
     for box_idx in range(9):
-        y_idx, x_idx = box_mapping[box_idx]
+        x_idx, y_idx = box_mapping[box_idx]
         extended_mlcloud[:, y_idx, x_idx] = mlcloud[:, box_idx]
     
     # Define shifts for additional boxes
@@ -72,7 +72,7 @@ def extend_mlcloud_with_shifts(mlcloud):
             # For negative shifts, fill the end with the value of the last valid frame
             shifted_mlcloud[shift:] = shifted_mlcloud[shift - 1]
         
-        y_idx, x_idx = box_mapping[box_idx]
+        x_idx, y_idx = box_mapping[box_idx]
         extended_mlcloud[:, y_idx, x_idx] = shifted_mlcloud
     
     return extended_mlcloud
@@ -122,8 +122,8 @@ for file_name in os.listdir(nc_input_folder):
                     dst_nc.createDimension(name, len(dimension) if not dimension.isunlimited() else None)
                 
                 # Create new dimensions for y_box_along_track and x_box_cross_track
-                dst_nc.createDimension('y_box_along_track', 14)
-                dst_nc.createDimension('x_box_cross_track', 3)
+                dst_nc.createDimension('x_box_along_track', 14)
+                dst_nc.createDimension('y_box_cross_track', 3)
                 
                 # Copy variables
                 for name, variable in src_nc.variables.items():
@@ -133,7 +133,7 @@ for file_name in os.listdir(nc_input_folder):
                     dst_nc[name].setncatts({k: variable.getncattr(k) for k in variable.ncattrs()})
                 
                 # Add 'MLCloud' variable
-                mlcloud_var = dst_nc.createVariable('MLCloud', 'i4', ('time', 'y_box_along_track', 'x_box_cross_track'), zlib=True)
+                mlcloud_var = dst_nc.createVariable('MLCloud', 'i4', ('time', 'y_box_cross_track', 'x_box_along_track'), zlib=True)
                 mlcloud_var[:] = extended_mlcloud
                 print(f"Created new file with 'MLCloud' variable: {new_nc_file_path}")
         else:

@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import time
 import os
+import numpy as np
+from sklearn.metrics import confusion_matrix
 
 # Ensure TensorFlow is using GPU if available
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -27,7 +29,7 @@ if gpus:
 
 # Define your data augmentation pipeline
 def augment(image):
-    image = tf.image.random_flip_left_right(image)
+    #image = tf.image.random_flip_left_right(image)
     image = tf.image.random_flip_up_down(image)
     # image = tf.image.rot90(image, k=tf.random.uniform(shape=[], minval=0, maxval=4, dtype=tf.int32))
     # image = tf.image.random_brightness(image, max_delta=0.2)
@@ -91,7 +93,7 @@ logdir = f'logs/resnet_model'
 tensorboard_callback = TensorBoard(log_dir=logdir)
 early_stopping_callback = EarlyStopping(
     monitor='val_loss',
-    patience=5,
+    patience=50,
     restore_best_weights=True
 )
 
@@ -99,7 +101,7 @@ start_time = time.time()
 
 hist = model.fit(
     train,
-    epochs=20,
+    epochs=400,
     validation_data=val,
     callbacks=[tensorboard_callback, early_stopping_callback]
 )
@@ -109,64 +111,59 @@ training_time = end_time - start_time
 
 histories.append(hist)
 
-# Evaluate
-pre = tf.keras.metrics.Precision()
-re = tf.keras.metrics.Recall()
-acc = tf.keras.metrics.BinaryAccuracy()
-
-for batch in test.as_numpy_iterator():
-    X, y = batch
-    yhat = model.predict(X)
-    pre.update_state(y, yhat)
-    re.update_state(y, yhat)
-    acc.update_state(y, yhat)
-
-precision = pre.result().numpy()
-recall = re.result().numpy()
-accuracy = acc.result().numpy()
-
-results.append({
-    'Model': 'ResNet50',
-    'Precision': precision,
-    'Recall': recall,
-    'Accuracy': accuracy,
-    'Training Time (s)': training_time
-})
-
 # Save the Model
 os.makedirs('models', exist_ok=True)
 model.save('models/DeepLearning_resnet_model_3fs.h5')
 
-# Save results to CSV
-results_df = pd.DataFrame(results)
-results_df.to_csv('resnet_model_performance_comparison.csv', index=False)
+def evaluate_confusion_matrix(model, test_data, threshold):
+    y_true = []
+    y_pred = []
 
-print("Performance comparison saved to resnet_model_performance_comparison.csv")
+    for batch in test_data.as_numpy_iterator():
+        X, y = batch
+        yhat = model.predict(X)
+        y_true.extend(y)
+        y_pred.extend(yhat)
 
-# Save epoch-wise accuracy and validation accuracy
-epoch_results = []
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
 
-for i, hist in enumerate(histories):
-    for epoch in range(len(hist.history['accuracy'])):
-        epoch_results.append({
-            'Model': 'ResNet50',
-            'Epoch': epoch + 1,
-            'Accuracy': hist.history['accuracy'][epoch],
-            'Val_Accuracy': hist.history['val_accuracy'][epoch]
-        })
+    # Apply threshold to predictions
+    y_pred_thresholded = (y_pred >= threshold / 100).astype(int)
 
-epoch_results_df = pd.DataFrame(epoch_results)
-epoch_results_df.to_csv('resnet_epoch_performance_comparison.csv', index=False)
+    # Compute confusion matrix
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred_thresholded).ravel()
+    
+    return tn, fp, fn, tp
 
-print("Epoch performance comparison saved to resnet_epoch_performance_comparison.csv")
+# List to hold results
+confusion_matrix_results = []
+
+# Evaluate model for thresholds from 30 to 70 (integer values)
+for threshold in range(30, 71):
+    tn, fp, fn, tp = evaluate_confusion_matrix(model, test, threshold)
+
+    confusion_matrix_results.append({
+        'Threshold': threshold,
+        'True_Negatives': tn,
+        'False_Positives': fp,
+        'False_Negatives': fn,
+        'True_Positives': tp
+    })
+
+# Save confusion matrix results to CSV
+confusion_matrix_df = pd.DataFrame(confusion_matrix_results)
+confusion_matrix_df.to_csv('resnet_confusion_matrix_thresholds.csv', index=False)
+
+print("Confusion matrix components saved to resnet_confusion_matrix_thresholds.csv")
 
 # Plot validation accuracy for ResNet-50 model
 plt.figure(figsize=(12, 8))
 for i, hist in enumerate(histories):
     plt.plot(hist.history['val_accuracy'], label=f'ResNet50 Val Accuracy')
 
-plt.axhline(y=0.8, color='r', linestyle='--', label='80% Accuracy')
-plt.axhline(y=0.9, color='g', linestyle='--', label='90% Accuracy')
+plt.axhline(y=0.75, color='r', linestyle='--', label='75% Accuracy')
+plt.axhline(y=0.85, color='g', linestyle='--', label='85% Accuracy')
 plt.title('Validation Accuracy Trends for ResNet-50')
 plt.xlabel('Epochs')
 plt.ylabel('Validation Accuracy')

@@ -132,10 +132,18 @@ colorbar = None  # To keep track of the colorbar
 # Set initial vmin and vmax
 vmin, vmax = vmin_default, vmax_default
 
+# Initial filtering value
+filtering_value = 5  # Default filtering value
+
+# Create the slider for filtering value (0 to 10)
+ax_filtering_slider = plt.axes([0.1, 0.25, 0.7, 0.03], facecolor='lightgoldenrodyellow')
+filtering_slider = Slider(ax_filtering_slider, 'Filtering', 0, 10, valinit=filtering_value, valfmt='%0.0f')
+
 def update_plot(time_step):
-    global colorbar, current_time_step, ml_threshold
+    global colorbar, current_time_step, ml_threshold, filtering_value
     current_time_step = int(time_step)
     ml_threshold = int(ml_threshold_slider.val)
+    filtering_value = int(filtering_slider.val)  # Get the filtering value from the slider
     
     # Get vmin and vmax from the range slider
     vmin, vmax = range_slider.val
@@ -166,24 +174,35 @@ def update_plot(time_step):
     cloud_center = False
     cloud_count = 0
     
-    # Highlight the boxes where MLCloud is above the threshold
+    # Highlight the boxes where MLCloud is above the threshold for the given filtering value
     for box_idx, (x_start, x_end, y_start, y_end) in enumerate(boxes):
-        if mlcloud[current_time_step, box_mapping[box_idx][0], box_mapping[box_idx][1]] >= ml_threshold:
-            # Create a blue overlay with some transparency
-            overlay = plt.Rectangle(
-                (x_start, y_start), 
-                x_end - x_start, 
-                y_end - y_start,
-                linewidth=0, 
-                edgecolor='none', 
-                facecolor='blue', 
-                alpha=0.25
-            )
-            ax.add_patch(overlay)
-            cloud_count += 1
-            # Check if the box is one of the center boxes (24, 25, 26)
-            if box_idx in [24, 25, 26]:
-                cloud_center = True
+        # Check MLCloud values from filtering_value frames before to filtering_value frames after the current time step
+        start_frame = max(0, current_time_step - filtering_value + 1)
+        end_frame = min(mlcloud.shape[0], current_time_step + filtering_value)
+        
+        # Check if the MLCloud value is above the threshold for the number of consecutive frames specified by filtering_value
+        consecutive_above_threshold = 0
+        for t in range(start_frame, end_frame):
+            if mlcloud[t, box_mapping[box_idx][0], box_mapping[box_idx][1]] >= ml_threshold:
+                consecutive_above_threshold += 1
+            else:
+                consecutive_above_threshold = 0  # Reset if a value is below the threshold
+            
+            if consecutive_above_threshold >= filtering_value:  # Use filtering_value from the slider
+                overlay = plt.Rectangle(
+                    (x_start, y_start), 
+                    x_end - x_start, 
+                    y_end - y_start,
+                    linewidth=0, 
+                    edgecolor='none', 
+                    facecolor='blue', 
+                    alpha=0.25
+                )
+                ax.add_patch(overlay)
+                cloud_count += 1
+                if box_idx in [24, 25, 26]:  # Check if it's one of the center boxes
+                    cloud_center = True
+                break  # No need to check further once filtering condition is met
     
     # Set the aspect of the plot axis to equal, enforcing a 1:1 aspect ratio
     ax.set_aspect('equal')
@@ -204,6 +223,9 @@ def update_plot(time_step):
             transform=ax.transAxes, color='green', fontsize=12, fontweight='bold')
 
     plt.draw()
+
+# Connect the slider for filtering value to the update_plot function
+filtering_slider.on_changed(lambda val: update_plot(slider.val))
 
 def update_vmin_vmax(event):
     global vmin, vmax, current_time_step
