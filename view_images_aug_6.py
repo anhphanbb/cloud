@@ -6,10 +6,16 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
-parent_directory = 'l1r_11_updated_07032024'
+parent_directory = 'l1r_11_updated_10072024'
 
 # Define the orbit number
-orbit_number = 52  # orbit number
+orbit_number = 45  # orbit number
+
+# # Define the path to the parent directory where the dataset is located
+# parent_directory = 'one_nc_file_with_mlcloud'
+
+# # Define the orbit number
+# orbit_number = 90  # Orbit number
 
 # Pad the orbit number with zeros until it has 5 digits
 orbit_str = str(orbit_number).zfill(5)
@@ -31,7 +37,6 @@ for root, dirs, files in os.walk(parent_directory):
 if dataset_filename is None:
     raise FileNotFoundError(f"No file found for orbit number {orbit_str}")
     
-
 
 # Load the dataset
 dataset = nc.Dataset(dataset_path, 'r')

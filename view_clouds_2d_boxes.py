@@ -6,10 +6,16 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
-parent_directory = 'one_nc_file_with_mlcloud'
+parent_directory = 'nc_files_with_mlcloud'
 
 # Define the orbit number
-orbit_number = 90  # Orbit number
+orbit_number = 11111  # Orbit number
+
+# # Define the path to the parent directory where the dataset is located
+# parent_directory = 'one_nc_file_with_mlcloud'
+
+# # Define the orbit number
+# orbit_number = 90  # Orbit number
 
 # Define the bounding boxes (all 40 boxes)
 boxes = [
@@ -183,7 +189,7 @@ def update_plot(time_step):
         # Check if the MLCloud value is above the threshold for the number of consecutive frames specified by filtering_value
         consecutive_above_threshold = 0
         for t in range(start_frame, end_frame):
-            if mlcloud[t, box_mapping[box_idx][0], box_mapping[box_idx][1]] >= ml_threshold:
+            if mlcloud[t, box_mapping[box_idx][1], box_mapping[box_idx][0]] >= ml_threshold:
                 consecutive_above_threshold += 1
             else:
                 consecutive_above_threshold = 0  # Reset if a value is below the threshold

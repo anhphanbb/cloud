@@ -17,7 +17,7 @@ import re
 import shutil  # Import shutil to delete files
 
 # Path to the CSV file with filenames
-csv_file_path = 'csv/newest/cloud_intervals_3fs_sep_24.csv'
+csv_file_path = 'csv/newest/cloud_intervals_3fs_heavy_weighed.csv'
 parent_directory = 'l1r_11_updated_10072024'
 
 # Read the CSV file
@@ -35,21 +35,23 @@ clear_folder = 'images/clear'
 os.makedirs(cloud_folder, exist_ok=True)
 os.makedirs(clear_folder, exist_ok=True)
 
-# Function to clear all files in a given folder
-def clear_images(folder_path):
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)  # Remove the file
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)  # Remove the directory and its contents
-        except Exception as e:
-            print(f'Failed to delete {file_path}. Reason: {e}')
 
-# Clear both folders before saving new images
-clear_images(cloud_folder)
-clear_images(clear_folder)
+# Do not clear files for heavy weighed orbits. 
+# # Function to clear all files in a given folder
+# def clear_images(folder_path):
+#     for filename in os.listdir(folder_path):
+#         file_path = os.path.join(folder_path, filename)
+#         try:
+#             if os.path.isfile(file_path) or os.path.islink(file_path):
+#                 os.unlink(file_path)  # Remove the file
+#             elif os.path.isdir(file_path):
+#                 shutil.rmtree(file_path)  # Remove the directory and its contents
+#         except Exception as e:
+#             print(f'Failed to delete {file_path}. Reason: {e}')
+
+# # Clear both folders before saving new images
+# clear_images(cloud_folder)
+# clear_images(clear_folder)
 
 
 # Bounding box coordinates for nine smaller boxes
@@ -101,8 +103,7 @@ def find_nc_file(parent_directory, orbit_number):
     raise FileNotFoundError(f"No file found for orbit number {orbit_str}")
 
 # Function to read and save "Radiance" variable as images
-# Function to read and save "Radiance" variable as images
-def save_radiance_as_images(nc_file_path, orbit_number, cloud_intervals_list, cloud_chance=0.25, clear_chance=0.05):
+def save_radiance_as_images(nc_file_path, orbit_number, cloud_intervals_list, cloud_chance=0.25, clear_chance=0.25):
     with Dataset(nc_file_path, 'r') as nc:
         radiance = nc.variables['Radiance'][:]
         num_frames = radiance.shape[0]

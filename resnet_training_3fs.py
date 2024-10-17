@@ -29,7 +29,7 @@ if gpus:
 
 # Define your data augmentation pipeline
 def augment(image):
-    #image = tf.image.random_flip_left_right(image)
+    # image = tf.image.random_flip_left_right(image)
     image = tf.image.random_flip_up_down(image)
     # image = tf.image.rot90(image, k=tf.random.uniform(shape=[], minval=0, maxval=4, dtype=tf.int32))
     # image = tf.image.random_brightness(image, max_delta=0.2)
@@ -93,7 +93,7 @@ logdir = f'logs/resnet_model'
 tensorboard_callback = TensorBoard(log_dir=logdir)
 early_stopping_callback = EarlyStopping(
     monitor='val_loss',
-    patience=50,
+    patience=10,
     restore_best_weights=True
 )
 
@@ -101,7 +101,7 @@ start_time = time.time()
 
 hist = model.fit(
     train,
-    epochs=400,
+    epochs=40,
     validation_data=val,
     callbacks=[tensorboard_callback, early_stopping_callback]
 )
