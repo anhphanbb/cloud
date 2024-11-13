@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 # Define input and output folders
-input_folder = 'l1r_11_updated_10072024'
+input_folder = '621_750'
 output_folder = 'images_to_predict'
 
 # Ensure the output folder exists

@@ -6,10 +6,10 @@ import os
 import re
 
 # Define the path to the parent directory where the dataset is located
-parent_directory = 'l1r_11_updated_10072024'
+parent_directory = 'l1r_11_reduced'
 
 # Define the orbit number
-orbit_number = 45  # orbit number
+orbit_number = 1  # orbit number
 
 # # Define the path to the parent directory where the dataset is located
 # parent_directory = 'one_nc_file_with_mlcloud'
@@ -21,7 +21,7 @@ orbit_number = 45  # orbit number
 orbit_str = str(orbit_number).zfill(5)
 
 # Search for the correct file name in all subdirectories
-pattern = re.compile(r'awe_l1r_(.*)_' + orbit_str + r'_(.*)\.nc')
+pattern = re.compile(r'awe_l(.*)_' + orbit_str + r'_(.*)\.nc')
 dataset_filename = None
 dataset_path = None
 
@@ -59,6 +59,11 @@ for var in dataset.variables.keys():
     print("Attributes:")
     for attr in dataset.variables[var].ncattrs():
         print(f"    {attr}: {dataset.variables[var].getncattr(attr)}")
+        
+print("\n=== Chunk Sizes ===")
+for var_name, variable in dataset.variables.items():
+    chunk_sizes = variable.chunking()
+    print(f"{var_name}: {chunk_sizes}")
 
 # Close the dataset
 dataset.close()
