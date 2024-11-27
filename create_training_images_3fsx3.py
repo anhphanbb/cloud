@@ -17,7 +17,7 @@ import re
 import shutil  # Import shutil to delete files
 
 # Path to the CSV file with filenames
-csv_file_path = 'csv/newest/cloud_intervals_3fs_sep_24.csv'
+csv_file_path = 'csv/newest/cloud_intervals_3fs_nov_22.csv'
 parent_directory = 'l1r_11_updated_10072024'
 
 # Read the CSV file
@@ -79,12 +79,12 @@ boxes = [
 # ]
 
 
-# Function to check if a frame is within any of the cloud intervals
-def is_within_cloud_intervals(frame_index, interval):
-    return interval[0] <= frame_index <= interval[1]
+# Function to check if a frame is within any of the cloud intervals (2 frames away from the boundary)
+def is_within_cloud_intervals(frame_index, interval, threshold=2):
+    return interval[0] + threshold <= frame_index <= interval[1] - threshold
 
-# Function to check if a frame is clear (more than 5 frames away from cloud intervals)
-def is_clear_frame(frame_index, intervals, threshold=5):
+# Function to check if a frame is clear (more than 2 frames away from cloud intervals)
+def is_clear_frame(frame_index, intervals, threshold=2):
     for interval in intervals:
         if interval[0] - threshold <= frame_index <= interval[1] + threshold:
             return False

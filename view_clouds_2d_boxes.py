@@ -9,7 +9,7 @@ import re
 parent_directory = 'nc_files_with_mlcloud'
 
 # Define the orbit number
-orbit_number = 11111  # Orbit number
+orbit_number = 45  # Orbit number
 
 # # Define the path to the parent directory where the dataset is located
 # parent_directory = 'one_nc_file_with_mlcloud'
@@ -112,8 +112,8 @@ ml_threshold = 45  # Default ML threshold
 radiance_at_time_0 = radiance[0, :, :]
 radiance_flat = radiance_at_time_0.flatten()
 radiance_flat = radiance_flat[~np.isnan(radiance_flat)]
-vmin_default = np.percentile(radiance_flat, 0.4) * 0.96
-vmax_default = np.percentile(radiance_flat, 99.7) * 1.05
+vmin_default = np.percentile(radiance_flat, 0.4) * 0.85
+vmax_default = np.percentile(radiance_flat, 99.7) * 1.2
 
 # Create figure and axes for the plot
 fig, ax = plt.subplots(figsize=(12, 12))
@@ -246,8 +246,8 @@ def update_vmin_vmax(event):
         raise ValueError("No valid data to compute percentiles.")
     
     # Compute the percentile values for vmin and vmax
-    vmin = np.percentile(radiance_flat, 0.4) * 0.96
-    vmax = np.percentile(radiance_flat, 99.7) * 1.05
+    vmin = np.percentile(radiance_flat, 0.4) * 0.85
+    vmax = np.percentile(radiance_flat, 99.7) * 1.2
     
     # Update the range slider
     range_slider.set_val((vmin, vmax))

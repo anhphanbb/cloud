@@ -17,7 +17,7 @@ import re
 import shutil  # Import shutil to delete files
 
 # Path to the CSV file with filenames
-csv_file_path = 'csv/newest/cloud_intervals_3fs_heavy_weighed.csv'
+csv_file_path = 'csv/newest/cloud_intervals_3fs_heavy_weighed_nov_26.csv'
 parent_directory = 'l1r_11_updated_10072024'
 
 # Read the CSV file

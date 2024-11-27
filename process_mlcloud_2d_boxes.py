@@ -9,7 +9,7 @@ from netCDF4 import Dataset
 # nc_output_folder = 'one_nc_file_with_mlcloud'
 
 # Define input and output folders
-nc_input_folder = '621_750'
+nc_input_folder = '45'
 predictions_folder = 'predictions/3fsx3'
 nc_output_folder = 'nc_files_with_mlcloud'
 
